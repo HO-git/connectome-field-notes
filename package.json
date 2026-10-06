@@ -1,0 +1,13 @@
+{
+  "name": "connectome-field-notes",
+  "private": true,
+  "type": "module",
+  "description": "Type-check tooling for the extensions in this repo. Nothing here is published.",
+  "scripts": {
+    "check": "tsc --noEmit -p ."
+  },
+  "devDependencies": {
+    "@animalabs/agent-framework": "^0.21.0",
+    "typescript": "^5.7.0"
+  }
+}

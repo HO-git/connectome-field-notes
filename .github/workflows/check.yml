@@ -1,0 +1,39 @@
+name: check-extensions
+
+# Type-checks everything under extensions/ against agent-framework's types.
+# - On pushes and PRs: against the versions in package-lock.json.
+# - Weekly: against the newest published agent-framework, so an upstream
+#   interface change shows up here before it reaches anyone's agent.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '17 6 * * 1'   # Mondays 06:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install (locked)
+        run: npm ci --ignore-scripts
+
+      - name: Use latest agent-framework (scheduled / manual runs)
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: |
+          npm install --ignore-scripts --no-save @animalabs/agent-framework@latest
+          echo "agent-framework $(node -p "require('./node_modules/@animalabs/agent-framework/package.json').version")"
+
+      - name: Type-check
+        run: npm run check
